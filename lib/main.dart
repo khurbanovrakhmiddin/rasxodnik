@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:satisfaction/send_bot_message.dart';
 
 import 'netservice.dart';
 
-void main()async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
@@ -34,72 +33,70 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var decoration = InputDecoration(
+      filled: true,
+      fillColor: Colors.blue.shade100,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ));
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("Расходы ${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}"),
-        TextField(),
-        TextField(),
-          TextField(
-
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-            ],
-            keyboardType: TextInputType.phone,
-            decoration: InputDecoration(
-              counterStyle: const TextStyle(
-                height: double.minPositive,
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Text(
+                "Расходы ${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}",
+                style: TextStyle(fontSize: 25, color: Colors.black),
               ),
-              counterText: "",
-
-              hintStyle: Theme.of(context).textTheme
-                  .headline3?.copyWith(color: Colors.grey),
-              hintText: "(90) 123 45 67",
-
-
-              border: OutlineInputBorder(
-
-                  borderRadius:
-                  BorderRadius.circular(
-                      8),
-                  borderSide: BorderSide(
-                      color: Colors
-                          .grey.shade300),
-                  gapPadding: 1),
-              focusedBorder:
-              OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Colors
-                          .grey.shade300),
-                  borderRadius:
-                  BorderRadius
-                      .circular(8),
-                  gapPadding: 1),
             ),
-
-          ),
-          SizedBox(height: 50,),
-
-          ElevatedButton(
-              style: ButtonStyle(
-                  elevation: MaterialStateProperty.all(4),
-                  minimumSize: MaterialStateProperty.all(
-                      const Size(double.infinity, 48)),
-                  maximumSize: MaterialStateProperty.all(
-                      const Size(double.infinity, 48)),
-                  backgroundColor: MaterialStateProperty.all(
-                    Colors.greenAccent,
-                  ),
-                  shape: MaterialStateProperty.all<
-                      RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ))),
-              onPressed: (){}, child: Text("Сохранить"))
-      ],),
+            ...text("Имя товара"),
+            TextField(decoration: decoration.copyWith(hintText: "Имя товара")),
+            ...text("Тип расхода"),
+            TextField(decoration: decoration.copyWith(hintText: "Тип расхода")),
+            ...text("Общая сумма"),
+            TextField(
+                keyboardType: TextInputType.number,
+                decoration: decoration.copyWith(
+                  hintText: "Общая сумма",
+                )),
+            SizedBox(
+              height: 50,
+            ),
+            ElevatedButton(
+                style: ButtonStyle(
+                    elevation: MaterialStateProperty.all(4),
+                    minimumSize: MaterialStateProperty.all(const Size(double.infinity, 48)),
+                    maximumSize: MaterialStateProperty.all(const Size(double.infinity, 48)),
+                    backgroundColor: MaterialStateProperty.all(
+                      Colors.greenAccent,
+                    ),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ))),
+                onPressed: () {},
+                child: Text("Сохранить"))
+          ],
+        ),
+      ),
     );
+  }
+
+  List<Widget> text(String text) {
+    return [
+      const SizedBox(
+        height: 15,
+      ),
+      Text(text),
+      const SizedBox(
+        height: 15,
+      ),
+    ];
   }
 }
