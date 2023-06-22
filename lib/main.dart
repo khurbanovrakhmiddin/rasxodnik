@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:satisfaction/send_bot_message.dart';
-
+import 'firebase_options.dart';
 import 'history_page.dart';
 import 'netservice.dart';
+import 'package:firebase_core/firebase_core.dart';
 
+/// Example:
+/// ```dart
+/// import 'firebase_options.dart';
+/// // ...
+
+/// ```
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -171,17 +181,17 @@ class _MyHomePageState extends State<MyHomePage> {
   String message = '';
 
   void accept() async {
-    String name = _name.text.toString();
+   // String name = _name.text.toString();
     String type = _type.text.toString();
     String summa = _summa.text.toString();
 
-    print(name);
+
     print(type);
     print(summa);
     print(full);
 
 
-    if (name.isEmpty || type.isEmpty || summa.isEmpty) {
+    if (  type.isEmpty || summa.isEmpty) {
       full = false;
       setState(() {});
       return;
@@ -194,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
 
 
-      await NetService.SENDTELEGRAMBOT(name: name, type: type, sum: priceParser(summa));
+      await NetService.SENDTELEGRAMBOT(  type: type, sum: priceParser(summa));
       loading = false;
 setState(() {
 
@@ -223,9 +233,9 @@ setState(() {
                 style: const TextStyle(fontSize: 25, color: Colors.black),
               ),
             ),
-            ...text("Имя товара"),
-            TextField(controller: _name, decoration: decoration.copyWith(hintText: "Имя товара")),
-            ...text("Тип расхода"),
+            // ...text("Имя товара"),
+            // TextField(controller: _name, decoration: decoration.copyWith(hintText: "Имя товара")),
+            // ...text("Тип расхода"),
             TextField(controller: _type, decoration: decoration.copyWith(hintText: "Тип расхода")),
             ...text("Общая сумма"),
             TextField(
