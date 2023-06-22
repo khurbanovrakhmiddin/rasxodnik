@@ -1,0 +1,1 @@
+import 'package:equatable/equatable.dart';class Order extends Equatable {  late String? name; late  String? sum;  late String? type;  Order({required this.name,required this.type,required this.sum,  });  Map<String, dynamic> toJson() => {    "name": name,    "type": type,    "sum": sum,  };  @override  List<Object> get props => [];}
