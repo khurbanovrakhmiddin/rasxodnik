@@ -4,6 +4,7 @@ import 'firebase_options.dart';
 import 'history_page.dart';
 import 'netservice.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 /// Example:
 /// ```dart
@@ -13,6 +14,8 @@ import 'package:firebase_core/firebase_core.dart';
 /// ```
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  await Hive.openBox('history');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -44,32 +47,34 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late TextEditingController _name;
   late TextEditingController _type;
   late TextEditingController _summa;
+bool hide = false;
+  bool full = true;
+  bool loading = false;
+  String message = '';
+  List rasxod = [];
+  FocusNode focus = FocusNode();
+  var box = Hive.box('history');
 
   @override
   void initState() {
     super.initState();
-    _name = TextEditingController();
     _type = TextEditingController();
     _summa = TextEditingController();
+    rasxod = box.values.toList();
   }
 
   String priceParser(var a) {
-
-
-
     String result = a.toString();
     String res = '';
-
 
     switch (result.length) {
       case 4:
         {
           for (int i = 0; i < result.length; i++) {
             if (i == 1) {
-              res += ' ';
+              res += '-';
             }
 
             res += result[i];
@@ -80,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
         {
           for (int i = 0; i < result.length; i++) {
             if (i == 2) {
-              res += ' ';
+              res += '-';
             }
 
             res += result[i];
@@ -91,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
         {
           for (int i = 0; i < result.length; i++) {
             if (i == 3) {
-              res += ' ';
+              res += '-';
             }
 
             res += result[i];
@@ -102,10 +107,10 @@ class _MyHomePageState extends State<MyHomePage> {
         {
           for (int i = 0; i < result.length; i++) {
             if (i == 1) {
-              res += ' ';
+              res += '-';
             }
             if (i == 4) {
-              res += ' ';
+              res += '-';
             }
 
             res += result[i];
@@ -116,13 +121,13 @@ class _MyHomePageState extends State<MyHomePage> {
         {
           for (int i = 0; i < result.length; i++) {
             if (i == 2) {
-              res += ' ';
+              res += '-';
             }
             if (i == 5) {
-              res += ' ';
+              res += '-';
             }
             if (i == 8) {
-              res += ' ';
+              res += '-';
             }
 
             res += result[i];
@@ -133,13 +138,13 @@ class _MyHomePageState extends State<MyHomePage> {
         {
           for (int i = 0; i < result.length; i++) {
             if (i == 3) {
-              res += ' ';
+              res += '-';
             }
             if (i == 6) {
-              res += ' ';
+              res += '-';
             }
             if (i == 9) {
-              res += ' ';
+              res += '-';
             }
             res += result[i];
           }
@@ -149,16 +154,16 @@ class _MyHomePageState extends State<MyHomePage> {
         {
           for (int i = 0; i < result.length; i++) {
             if (i == 1) {
-              res += ' ';
+              res += '-';
             }
             if (i == 4) {
-              res += ' ';
+              res += '-';
             }
             if (i == 7) {
-              res += ' ';
+              res += '-';
             }
             if (i == 10) {
-              res += ' ';
+              res += '-';
             }
 
             res += result[i];
@@ -168,6 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return res;
   }
+
   var decoration = InputDecoration(
       filled: true,
       fillColor: Colors.blue.shade100,
@@ -176,43 +182,48 @@ class _MyHomePageState extends State<MyHomePage> {
         borderSide: BorderSide.none,
       ));
 
-  bool full = true;
-  bool loading = false;
-  String message = '';
-
   void accept() async {
-   // String name = _name.text.toString();
+    // String name = _name.text.toString();
     String type = _type.text.toString();
     String summa = _summa.text.toString();
-
 
     print(type);
     print(summa);
     print(full);
 
-
-    if (  type.isEmpty || summa.isEmpty) {
+    if (type.isEmpty || summa.isEmpty) {
       full = false;
+      message = 'jo xoli';
       setState(() {});
       return;
     }
     loading = true;
 
-      full = true;
-      setState(() {});
+    full = true;
+    setState(() {});
 
     try {
-
-
-      await NetService.SENDTELEGRAMBOT(  type: type, sum: priceParser(summa));
+      await NetService.SENDTELEGRAMBOT(type: type, sum: priceParser(summa));
       loading = false;
-setState(() {
+      message = 'Успешно!!';
 
-});
+      if (!rasxod.contains(_type.text)) {
+        box.add(_type.text);
+        rasxod.add(_type.text);
+      }
+      hide = false;
+
+
+      _type.clear();
+      _summa.clear();
+      focus.requestFocus();
+      setState(() {});
     } catch (e) {
       message = e.toString();
 
       full = false;
+      hide = false;
+
       loading = false;
       setState(() {});
     }
@@ -221,48 +232,93 @@ setState(() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset : true,
+
+
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: Text(
-                "Расходы ${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}",
-                style: const TextStyle(fontSize: 25, color: Colors.black),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                child: Text(
+                  message,
+                  style: TextStyle(fontSize: 25, color: message == "Успешно!!" ? Colors.green : Colors.red),
+                ),
               ),
-            ),
-            // ...text("Имя товара"),
-            // TextField(controller: _name, decoration: decoration.copyWith(hintText: "Имя товара")),
-            // ...text("Тип расхода"),
-            TextField(controller: _type, decoration: decoration.copyWith(hintText: "Тип расхода")),
-            ...text("Общая сумма"),
-            TextField(
-                controller: _summa,
-                keyboardType: TextInputType.number,
-                decoration: decoration.copyWith(
-                  hintText: "Общая сумма",
-                )),
-           const SizedBox(
-              height: 50,
-            ),
-            ElevatedButton(
-                style: ButtonStyle(
-                    elevation: MaterialStateProperty.all(4),
-                    minimumSize: MaterialStateProperty.all(const Size(double.infinity, 48)),
-                    maximumSize: MaterialStateProperty.all(const Size(double.infinity, 48)),
-                    backgroundColor: MaterialStateProperty.all(
-                      Colors.greenAccent,
-                    ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ))),
-                onPressed: accept,
-                child:loading?const CircularProgressIndicator():const Text("Сохранить"))
-          ],
+              Center(
+                child: Text(
+                  "Расходы ${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}",
+                  style: const TextStyle(fontSize: 25, color: Colors.black),
+                ),
+              ),
+              // ...text("Имя товара"),
+              // TextField(controller: _name, decoration: decoration.copyWith(hintText: "Имя товара")),
+              ...text("Тип расхода"),
+              TextField(
+                  onTap: (){
+
+                    hide = true;
+
+
+                    setState(() {
+
+                    });
+                  },
+                  focusNode: focus, controller: _type, decoration: decoration.copyWith(hintText: "Тип расхода")),
+
+              hide?
+              Wrap(
+                children: rasxod
+                    .map((e) => ActionChip(
+                  onPressed: () {
+                    _type.text = e;
+                    setState(() {});
+                  },
+                  backgroundColor: _type.text == e ? Colors.yellowAccent : Colors.white,
+                  label: Text(e),
+                ))
+                    .toList(),
+              ):const SizedBox.shrink(),
+              ...text("Общая сумма"),
+              TextField(
+                  onTap: (){
+
+                    hide = false;
+                    setState(() {
+
+                    });
+                  },
+                  controller: _summa,
+                  keyboardType: TextInputType.number,
+                  decoration: decoration.copyWith(
+                    hintText: "Общая сумма",
+                  )),
+              const SizedBox(
+                height: 50,
+              ),
+              ElevatedButton(
+                  style: ButtonStyle(
+                      elevation: MaterialStateProperty.all(4),
+                      minimumSize: MaterialStateProperty.all(const Size(double.infinity, 48)),
+                      maximumSize: MaterialStateProperty.all(const Size(double.infinity, 48)),
+                      backgroundColor: MaterialStateProperty.all(Colors.blue.shade300),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ))),
+                  onPressed: accept,
+                  child: loading
+                      ? const CircularProgressIndicator()
+                      : const Text(
+                    "Сохранить",
+                    style: TextStyle(color: Colors.white, fontSize: 22),
+                  )),
+
+
+            ]
         ),
-      ),
+      )
     );
   }
 
