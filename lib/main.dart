@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:satisfaction/send_bot_message.dart';
 import 'firebase_options.dart';
 import 'history_page.dart';
@@ -283,6 +284,9 @@ bool hide = false;
               ):const SizedBox.shrink(),
               ...text("Общая сумма"),
               TextField(
+
+
+
                   onTap: (){
 
                     hide = false;
@@ -290,6 +294,8 @@ bool hide = false;
 
                     });
                   },
+                  inputFormatters: [NumberTextInputFormatter()],
+
                   controller: _summa,
                   keyboardType: TextInputType.number,
                   decoration: decoration.copyWith(
@@ -333,4 +339,143 @@ bool hide = false;
       ),
     ];
   }
+}
+
+class NumberTextInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final newTextLength = newValue.text.length;
+    int selectionIndex = newValue.selection.end;
+    int usedSubstringIndex = 1;
+    final newTextBuffer = StringBuffer();
+   var r = newValue.text.trim();
+  r = r.replaceAll(' ', '');
+    var s = priceParser(r);
+    print(s);
+
+    return TextEditingValue(
+      text: s.toString(),
+      selection: TextSelection.collapsed(offset: s.length),
+    );
+
+
+  }
+  String priceParser(var a) {
+
+
+
+    String result = a.toString();
+    String res = '';
+    String replace = "-";
+print(result.length);
+    switch (result.length) {
+
+      case 1: return result;
+      case 2: return result;
+      case 3: return result;
+      case 4:
+        {
+          for (int i = 0; i < result.length; i++) {
+            if (i == 1) {
+              res += replace;
+            }
+
+            res += result[i];
+          }
+          break;
+        }
+      case 5:
+        {
+          for (int i = 0; i < result.length; i++) {
+            if (i == 2) {
+              res += replace;
+            }
+
+            res += result[i];
+          }
+          break;
+        }
+      case 6:
+        {
+          for (int i = 0; i < result.length; i++) {
+            if (i == 3) {
+              res += replace;
+            }
+
+            res += result[i];
+          }
+          break;
+        }
+      case 7:
+        {
+          for (int i = 0; i < result.length; i++) {
+            if (i == 1) {
+              res += replace;
+            }
+            if (i == 4) {
+              res += replace;
+            }
+
+            res += result[i];
+          }
+          break;
+        }
+      case 8:
+        {
+          for (int i = 0; i < result.length; i++) {
+            if (i == 2) {
+              res += replace;
+            }
+            if (i == 5) {
+              res += replace;
+            }
+            if (i == 8) {
+              res += replace;
+            }
+
+            res += result[i];
+          }
+          break;
+        }
+      case 9:
+        {
+          for (int i = 0; i < result.length; i++) {
+            if (i == 3) {
+              res += replace;
+            }
+            if (i == 6) {
+              res += replace;
+            }
+            if (i == 9) {
+              res += replace;
+            }
+            res += result[i];
+          }
+          break;
+        }
+      case 10:
+        {
+          for (int i = 0; i < result.length; i++) {
+            if (i == 1) {
+              res += replace;
+            }
+            if (i == 4) {
+              res += replace;
+            }
+            if (i == 7) {
+              res += replace;
+            }
+            if (i == 10) {
+              res += replace;
+            }
+
+            res += result[i];
+          }
+          break;
+        }
+    }
+    return res;
+  }
+
 }
